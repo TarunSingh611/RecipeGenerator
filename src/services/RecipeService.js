@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { date } from 'date-fns';
 
 const API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 const API_KEY = process.env.REACT_APP_GOOGLE_API_KEY;
@@ -8,6 +7,7 @@ export const generateRecipe = async (ingredients, preferences) => {
   if (!API_KEY) {
     throw new Error('Google API Key is not defined');
   }
+  const date = new Date();
 
   const userPrompt = `
     You are a professional chef who creates recipes tailored to specific ingredients and preferences.

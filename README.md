@@ -1,96 +1,107 @@
-# 🍴 Recipe Maker  
+# 🍴 Recipe Maker    
 
-Welcome to **Recipe Maker**, your ultimate tool for generating, managing, and sharing personalized recipes! Whether you're an amateur cook or a seasoned chef, Recipe Maker simplifies the process of discovering new recipes based on your ingredients and preferences.
+Welcome to **Recipe Maker**, your ultimate tool for generating, managing, and sharing personalized recipes! Whether you're an amateur cook or a seasoned chef, Recipe Maker simplifies the process of discovering new recipes based on your ingredients and preferences.  
 
----
+---  
 
-## 🌟 Features  
+## 🌟 Features    
 
-- **🔧 Generate Unique Recipes**: Automatically create recipes tailored to your available ingredients and preferences.
-- **📋 Copy Recipes Easily**: Share your favorite recipes with just a click.
-- **🔄 Refresh for Inspiration**: Generate new recipe ideas effortlessly.
-- **💡 Modern Design**: Experience a sleek and user-friendly interface optimized for all devices.
+- **🔧 Generate Unique Recipes**: Automatically create recipes tailored to your available ingredients and preferences.    
+- **📋 Copy Recipes Easily**: Share your favorite recipes with just a click.    
+- **🔄 Refresh for Inspiration**: Generate new recipe ideas effortlessly.    
+- **💡 Modern Design**: Experience a sleek and user-friendly interface optimized for all devices.    
 
----
+---  
 
-## 📸 Screenshots  
+## 📸 Screenshots    
 
-### 🏠 Home Page  
-![Home Page](https://via.placeholder.com/800x400?text=Home+Page) <!-- Replace with an actual screenshot -->  
+### 🏠 Home Page    
+![Home Page](./public/Home.png/800x400?text=Home+Page) <!-- Replace with an actual screenshot -->    
 
-### 🍲 Recipe Card  
-![Recipe Card](https://via.placeholder.com/800x400?text=Recipe+Card) <!-- Replace with an actual screenshot -->  
+### 🍲 Recipe Card    
+![Recipe Card](./public//RecipeCard.png/800x400?text=Recipe+Card) <!-- Replace with an actual screenshot -->    
 
----
+---  
 
-## 🚀 Getting Started  
+## 🚀 Getting Started    
 
-Follow these steps to set up the project locally:
+Follow these steps to set up the project locally:  
 
-### Prerequisites  
-- [Node.js](https://nodejs.org/) (v14 or higher)  
-- [Git](https://git-scm.com/)  
+### Prerequisites    
+- [Node.js](https://nodejs.org/) (v14 or higher)    
+- [Git](https://git-scm.com/)    
 
-### Installation  
+### Installation    
 
-1. **Clone the repository**:  
-   ```bash
-   git clone https://github.com/TarunSingh611/RecipeGenerator.git
-Navigate to the project directory:
+1. **Clone the repository**:    
+`git clone https://github.com/TarunSingh611/RecipeGenerator.git`  
 
-bash
-Copy code
-cd RecipeGenerator
-Install dependencies:
+2. **Navigate to the project directory**:    
+`cd RecipeGenerator`
+  
 
-bash
-Copy code
-npm install
-Create a .env file and add your API key:
+3. **Install dependencies**:    
+`npm install`
+  
 
-makefile
-Copy code
+4. **Create a `.env` file and add your API key**:    
+env
 REACT_APP_GOOGLE_API_KEY=your_api_key_here
-Start the development server:
+  
 
-bash
-Copy code
-npm start
-🛠️ Project Structure
-/src/components: Contains all React components like RecipeCard.
-/src/services: Handles API interactions for recipe generation.
-/src/utils: Includes utility functions like recipe sanitization.
-/src/context: Manages global state using React Context.
-🤝 Contributing
-Contributions are welcome! Please follow these steps:
+5. **Start the development server**:    
+`npm start`
+  
 
-Fork the repository.
-Create a new branch:
-bash
-Copy code
-git checkout -b feature-name
-Make your changes and commit them:
-bash
-Copy code
-git commit -m "Description of changes"
-Push your changes:
-bash
-Copy code
-git push origin feature-name
-Open a pull request.
-📜 License
-This project is licensed under the MIT License.
+---  
 
-💬 Contact
-For questions or suggestions, feel free to contact Tarun Singh.
+## 🛠️ Project Structure    
+RecipeGenerator/
+├── src/
+│ ├── components/ # Contains all React components like RecipeCard
+│ ├── services/ # Handles API interactions for recipe generation
+│ ├── utils/ # Includes utility functions like recipe sanitization
+│ └── context/ # Manages global state using React Context
+├── public/ # Static assets
+├── .env # Environment variables
+├── package.json # Project dependencies
+└── README.md # Project documentation
+  
 
-Happy Cooking! 🍳
+---  
 
-markdown
-Copy code
+## 🤝 Contributing    
 
-### Key Highlights:
-1. **Visual Structure**: Added sections with emoji highlights for readability.
-2. **Detailed Instructions**: Clear steps for setup and contribution.
-3. **Project Showcase**: Included placeholders for screenshots and banners to enhance visual appeal.
-4. **Professional Touch**: Styled for modern GitHub practices with clear headin
+Contributions are welcome! Please follow these steps:  
+
+1. **Fork the repository**.    
+2. **Create a new branch**:    
+`git checkout -b feature-name`
+  
+3. **Make your changes and commit them**:    
+`git commit -m "Description of changes"`
+  
+4. **Push your changes**:    
+`git push origin feature-name`
+  
+5. **Open a pull request**.    
+
+---  
+
+## 📜 License    
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.  
+
+---  
+
+## 💬 Contact    
+
+For questions or suggestions, feel free to contact:    
+- **GitHub**: [TarunSingh611](https://github.com/TarunSingh611)    
+- **Email**: tarun.singh@example.com    
+
+---  
+
+### 🌟 If you like this project, don’t forget to give it a star! ⭐    
+
+Happy Cooking! 🍳    
