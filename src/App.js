@@ -1,24 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import { CssBaseline, Container, Box } from '@mui/material';
+import { theme } from './styles/theme';
+import { RecipeProvider } from './context/RecipeContext';
+import Navbar from './components/Navbar';
+import SearchBar from './components/SearchBar';
+import RecipeList from './components/RecipeList';
+import BottomNav from './components/BottomNav';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <RecipeProvider>
+        <Box sx={{ pb: { xs: 7, sm: 0 } }}>
+          <Navbar />
+          <Container maxWidth="lg">
+            <SearchBar />
+            <RecipeList />
+          </Container>
+          <BottomNav />
+        </Box>
+      </RecipeProvider>
+    </ThemeProvider>
   );
 }
 
