@@ -54,21 +54,7 @@ REACT_APP_GOOGLE_API_KEY=your_api_key_here
   
 
 ---  
-
-## 🛠️ Project Structure    
-RecipeGenerator/
-├── src/
-│ ├── components/ # Contains all React components like RecipeCard
-│ ├── services/ # Handles API interactions for recipe generation
-│ ├── utils/ # Includes utility functions like recipe sanitization
-│ └── context/ # Manages global state using React Context
-├── public/ # Static assets
-├── .env # Environment variables
-├── package.json # Project dependencies
-└── README.md # Project documentation
   
-
----  
 
 ## 🤝 Contributing    
 
