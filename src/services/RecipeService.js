@@ -14,16 +14,16 @@ export const generateRecipe = async (ingredients, preferences) => {
     Create a recipe using the following ingredients: ${ingredients.join(', ')}.
     Preferences: ${preferences}.
     Use the seed ${date.now} for uniqueness.
-    Format the response as a simple string where each field is separated by a semicolon ";" and:
+    Format the response as a simple string where each field (field is title, ingredients, instructions, cookingTime, image, difficulty) is separated by a semicolon(;).:
     - Ingredients are listed with quantities, separated by commas.
     - Instructions are detailed in steps, with each step separated by a comma.
     Include the following fields in the output:
-    - "title": The name of the recipe.
-    - "ingredients": A list of ingredients with quantities.
-    - "instructions": Step-by-step cooking instructions.
-    - "cookingTime": Estimated cooking time in minutes.
-    - "image": A valid URL of a free image from the internet that visually represents the recipe (e.g., from Unsplash, Pexels, or Pixabay).
-    - "difficulty": Difficulty level (easy, medium, hard).
+    - The name of the recipe.
+    -  A list of ingredients with quantities.
+    - Step-by-step cooking instructions.
+    - Estimated cooking time in minutes.
+    -  A valid URL of a free image from the internet that visually represents the recipe (e.g., from Unsplash, Pexels, or Pixabay).
+    -  Difficulty level (easy, medium, hard).
     Ensure:
     1. The image URL corresponds specifically to the recipe.
     2. The recipe is clear, concise, and easy to follow.

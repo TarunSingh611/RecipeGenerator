@@ -6,14 +6,15 @@ export const parseAndSanitizeRecipe = (recipeString) => {
     
     // Map the fields to their respective keys with default values  
     const parsedRecipe = {  
-        title: fields[0].split(":")[1] || 'Untitled Recipe',  
-        ingredients: fields[1]?.split(":")[1]?.split(',').map((item) => item.trim()) || [], // Ingredients are comma-separated  
-        instructions: fields[2]?.split(":")[1]?.split(',').map((step) => step.trim()) || ['No instructions provided'],  
-        cookingTime: fields[3].split(":")[1] || 'N/A',  
+        title: fields[0] || 'Untitled Recipe',  
+        ingredients: fields[1]?.split(',').map((item) => item.trim()) || [], // Ingredients are comma-separated  
+        instructions: fields[2]?.split(',').map((step) => step.trim()) || ['No instructions provided'],  
+        cookingTime: fields[3] || 'N/A',  
         image: fields[4].slice(fields[4].indexOf(' ') + 1) || 'https://via.placeholder.com/400', // Default placeholder image if none is provided  
-        difficulty: fields[5].split(":")[1] || 'Unknown', // Default difficulty if not specified  
+        difficulty: fields[5] || 'Unknown', // Default difficulty if not specified  
     };  
-    
+    // console.log(fields);
+    // console.log(parsedRecipe);
     
     // Sanitize the parsed recipe to ensure clean and valid output  
     return {  
