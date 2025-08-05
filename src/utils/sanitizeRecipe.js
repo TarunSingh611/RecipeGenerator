@@ -5,6 +5,78 @@ export const parseAndSanitizeRecipe = (recipeString) => {
     throw new Error('Invalid recipe string provided');
   }
 
+  // Check for numbered section format (0: title, 1: ingredients, 2: instructions, etc.)
+  const numberedSectionPattern = /(\d+)\s*:\s*"([^"]+)"/g;
+  const numberedMatches = [...recipeString.matchAll(numberedSectionPattern)];
+  
+  if (numberedMatches.length >= 3) {
+    // Sort by section number
+    numberedMatches.sort((a, b) => parseInt(a[1]) - parseInt(b[1]));
+    
+    const recipe = {
+      title: '',
+      ingredients: [],
+      instructions: [],
+      cookingTime: 30,
+      imageUrl: 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&h=300&fit=crop',
+      difficulty: 'medium',
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+    };
+    
+    let currentSection = '';
+    
+    for (const match of numberedMatches) {
+      const sectionNumber = parseInt(match[1]);
+      const content = match[2].trim();
+      
+      // Determine section based on content and position
+      if (sectionNumber === 0 || (!currentSection && content.length > 0 && !content.toLowerCase().includes('ingredient'))) {
+        recipe.title = cleanText(content);
+        currentSection = 'title';
+      } else if (content.toLowerCase().includes('ingredient') || currentSection === 'ingredients') {
+        currentSection = 'ingredients';
+        if (!content.toLowerCase().includes('ingredient')) {
+          const ingredients = parseIngredients(content);
+          recipe.ingredients.push(...ingredients);
+        }
+      } else if (content.toLowerCase().includes('instruction') || currentSection === 'instructions') {
+        currentSection = 'instructions';
+        if (!content.toLowerCase().includes('instruction')) {
+          const instructions = parseInstructions(content);
+          recipe.instructions.push(...instructions);
+        }
+      } else if (content.toLowerCase().includes('time') || content.toLowerCase().includes('cooking')) {
+        const time = parseCookingTime(content);
+        if (time > 0) recipe.cookingTime = time;
+      } else if (content.toLowerCase().includes('difficulty') || content.toLowerCase().includes('level')) {
+        const difficulty = parseDifficulty(content);
+        if (difficulty) recipe.difficulty = difficulty;
+      } else if (content.toLowerCase().includes('image') || content.toLowerCase().includes('url')) {
+        const imageUrl = parseImageUrl(content);
+        if (imageUrl) recipe.imageUrl = imageUrl;
+      } else if (currentSection === 'ingredients') {
+        const ingredients = parseIngredients(content);
+        recipe.ingredients.push(...ingredients);
+      } else if (currentSection === 'instructions') {
+        const instructions = parseInstructions(content);
+        recipe.instructions.push(...instructions);
+      }
+    }
+    
+    // Validate and set defaults
+    if (!recipe.title) recipe.title = 'Delicious Recipe';
+    if (recipe.ingredients.length === 0) recipe.ingredients = ['Ingredients not specified'];
+    if (recipe.instructions.length === 0) recipe.instructions = ['Instructions not specified'];
+    if (recipe.cookingTime === 0) recipe.cookingTime = 30;
+    if (!recipe.difficulty) recipe.difficulty = 'medium';
+    if (!recipe.imageUrl) {
+      recipe.imageUrl = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&h=300&fit=crop';
+    }
+    
+    return recipe;
+  }
+
   // First, try to parse as semicolon-separated format (API response)
   const parts = recipeString.split(';').map(part => part.trim()).filter(part => part.length > 0);
   
@@ -33,7 +105,6 @@ export const parseAndSanitizeRecipe = (recipeString) => {
 
     return recipe;
   }
-
   // Fallback to the original parsing method for other formats
   const sections = recipeString.split(/\n+/).filter(section => section.trim());
 
@@ -55,32 +126,39 @@ export const parseAndSanitizeRecipe = (recipeString) => {
     const trimmedSection = section.trim();
     if (!trimmedSection) continue;
 
-    // Detect section type based on keywords
-    if (trimmedSection.toLowerCase().includes('ingredients') || 
-        trimmedSection.toLowerCase().includes('ingredient')) {
-      currentSection = 'ingredients';
-      continue;
-    } else if (trimmedSection.toLowerCase().includes('instructions') || 
-               trimmedSection.toLowerCase().includes('directions') ||
-               trimmedSection.toLowerCase().includes('steps') ||
-               trimmedSection.toLowerCase().includes('method')) {
-      currentSection = 'instructions';
-      continue;
-    } else if (trimmedSection.toLowerCase().includes('time') || 
-               trimmedSection.toLowerCase().includes('duration') ||
-               trimmedSection.toLowerCase().includes('minutes') ||
-               trimmedSection.toLowerCase().includes('mins')) {
-      currentSection = 'time';
-      continue;
-    } else if (trimmedSection.toLowerCase().includes('difficulty') || 
-               trimmedSection.toLowerCase().includes('level')) {
-      currentSection = 'difficulty';
-      continue;
-    } else if (trimmedSection.toLowerCase().includes('image') || 
-               trimmedSection.toLowerCase().includes('photo') ||
-               trimmedSection.toLowerCase().includes('picture')) {
-      currentSection = 'image';
-      continue;
+    // More precise section detection - look for section headers specifically
+    const lowerSection = trimmedSection.toLowerCase();
+    
+    // Check if this is a section header (starts with ** or contains specific patterns)
+    const isSectionHeader = trimmedSection.startsWith('**') || 
+                           /^(ingredients|instructions|directions|steps|method|time|duration|difficulty|level|image|photo|picture):/i.test(trimmedSection);
+    
+    if (isSectionHeader) {
+      if (lowerSection.includes('ingredient')) {
+        currentSection = 'ingredients';
+        continue;
+      } else if (lowerSection.includes('instruction') || 
+                 lowerSection.includes('direction') ||
+                 lowerSection.includes('step') ||
+                 lowerSection.includes('method')) {
+        currentSection = 'instructions';
+        continue;
+      } else if (lowerSection.includes('time') || 
+                 lowerSection.includes('duration') ||
+                 lowerSection.includes('minutes') ||
+                 lowerSection.includes('mins')) {
+        currentSection = 'time';
+        continue;
+      } else if (lowerSection.includes('difficulty') || 
+                 lowerSection.includes('level')) {
+        currentSection = 'difficulty';
+        continue;
+      } else if (lowerSection.includes('image') || 
+                 lowerSection.includes('photo') ||
+                 lowerSection.includes('picture')) {
+        currentSection = 'image';
+        continue;
+      }
     }
 
     // Parse based on current section
@@ -146,13 +224,15 @@ const cleanText = (text) => {
 const parseIngredients = (text) => {
   const ingredients = [];
   
-  // Split by common separators
-  const parts = text.split(/[,;•]/);
+  // Split by bullet points, asterisks, or other common separators
+  const parts = text.split(/[*•\n]/);
   
   for (const part of parts) {
     const cleaned = cleanText(part);
-    if (cleaned && cleaned.length > 2) {
-      ingredients.push(cleaned);
+    // Remove any leading/trailing asterisks and clean up
+    const cleanedIngredient = cleaned.replace(/^\*+\s*/, '').replace(/\*+$/, '').trim();
+    if (cleanedIngredient && cleanedIngredient.length > 2) {
+      ingredients.push(cleanedIngredient);
     }
   }
   
@@ -162,35 +242,35 @@ const parseIngredients = (text) => {
 const parseInstructions = (text) => {
   const instructions = [];
   
-  // Split by numbers followed by periods or dots, or by new lines
-  const parts = text.split(/(?:\d+\.|\n|\.\s+)/);
+  // Handle numbered instructions (1. 2. 3. etc.)
+  const numberedPattern = /(\d+)\.\s*(.+?)(?=\d+\.|$)/gs;
+  const numberedMatches = [...text.matchAll(numberedPattern)];
   
-  for (const part of parts) {
-    const cleaned = cleanText(part);
-    if (cleaned && cleaned.length > 10) {
-      // Add proper numbering starting from 1
-      instructions.push(cleaned);
+  if (numberedMatches.length > 0) {
+    // Sort by the number to ensure correct order
+    numberedMatches.sort((a, b) => parseInt(a[1]) - parseInt(b[1]));
+    
+    for (const match of numberedMatches) {
+      const instruction = cleanText(match[2]);
+      if (instruction && instruction.length > 5) {
+        instructions.push(instruction);
+      }
     }
-  }
-  
-  // If no instructions were parsed, try a different approach
-  if (instructions.length === 0) {
-    // Split by common instruction separators
-    const altParts = text.split(/(?:\.\s+|;\s+|,\s+)/);
-    for (const part of altParts) {
+  } else {
+    // Fallback: Split by common separators and clean up
+    const parts = text.split(/(?:\n|\.\s+|;\s+)/);
+    
+    for (const part of parts) {
       const cleaned = cleanText(part);
-      if (cleaned && cleaned.length > 10) {
-        instructions.push(cleaned);
+      // Remove any leading numbers and clean up
+      const cleanedInstruction = cleaned.replace(/^\d+\.?\s*/, '').trim();
+      if (cleanedInstruction && cleanedInstruction.length > 10) {
+        instructions.push(cleanedInstruction);
       }
     }
   }
   
-  // Ensure proper numbering starting from 1
-  return instructions.map((instruction, index) => {
-    // Remove any existing numbers at the beginning
-    const cleanedInstruction = instruction.replace(/^\d+\.?\s*/, '');
-    return cleanedInstruction;
-  });
+  return instructions;
 };
 
 const parseCookingTime = (text) => {

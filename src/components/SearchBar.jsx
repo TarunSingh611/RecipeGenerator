@@ -96,7 +96,6 @@ const SearchBar = () => {
       console.log('Ingredients:', ingredients);
 
       const recipe = await generateRecipe(ingredients, preferences);
-      console.log('Recipe:', recipe);
       addRecipe(recipe);
       // Removed handleClearAll() to prevent form reset
     } catch (err) {
@@ -254,7 +253,7 @@ const SearchBar = () => {
 
       {/* Advanced Options */}
       <Box sx={{ mb: 3 }}>
-        <Button
+        {/* <Button
           onClick={() => setShowAdvanced(!showAdvanced)}
           endIcon={showAdvanced ? <ExpandLess /> : <ExpandMore />}
           sx={{
@@ -263,7 +262,7 @@ const SearchBar = () => {
           }}
         >
           Advanced Options
-        </Button>
+        </Button> */}
 
         <Collapse in={showAdvanced}>
           <Stack spacing={2}>
@@ -336,7 +335,7 @@ const SearchBar = () => {
                 <MenuItem value="all">Any Time</MenuItem>
                 <MenuItem value="quick">Quick (≤30 min)</MenuItem>
                 <MenuItem value="medium">Medium (30-60 min)</MenuItem>
-                <MenuItem value="long">Long (>60 min)</MenuItem>
+                <MenuItem value="long">Long (&gt;60 min)</MenuItem>
               </Select>
             </FormControl>
           </Stack>

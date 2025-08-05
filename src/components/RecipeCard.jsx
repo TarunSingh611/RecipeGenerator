@@ -24,7 +24,6 @@ import {
 import {
   Timer,
   TrendingUp,
-  Share,
   ContentCopy,
   Delete,
   ExpandMore,
@@ -41,10 +40,10 @@ const RecipeCard = ({ recipe }) => {
   const { deleteRecipe, addRecipe, setLoading, setError } = useRecipes();
   
   const [expanded, setExpanded] = useState(false);
-  const [showShareDialog, setShowShareDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setLocalError] = useState('');
+  const [copySuccess, setCopySuccess] = useState(false);
 
   // Add null checks and default values
   if (!recipe) {
@@ -70,6 +69,8 @@ const RecipeCard = ({ recipe }) => {
   };
 
   const handleCopy = async () => {
+    setLocalError('');
+    setCopySuccess(false);
     try {
       const recipeText = `
 ${safeRecipe.title}
@@ -84,10 +85,40 @@ Cooking Time: ${safeRecipe.cookingTime} minutes
 Difficulty: ${safeRecipe.difficulty}
       `.trim();
 
-      await navigator.clipboard.writeText(recipeText);
-      setShowShareDialog(false);
+      // Try modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(recipeText);
+        setCopySuccess(true);
+        setTimeout(() => {
+          setCopySuccess(false);
+        }, 1500);
+        return;
+      }
+
+      // Fallback for older browsers or non-HTTPS environments
+      const textArea = document.createElement('textarea');
+      textArea.value = recipeText;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        setCopySuccess(true);
+        setTimeout(() => {
+          setCopySuccess(false);
+        }, 1500);
+      } else {
+        throw new Error('Copy command failed');
+      }
     } catch (err) {
-      setLocalError('Failed to copy recipe');
+      console.error('Copy error:', err);
+      setLocalError('Failed to copy recipe. Please try selecting and copying manually.');
     }
   };
 
@@ -103,7 +134,6 @@ Difficulty: ${safeRecipe.difficulty}
       });
       
       addRecipe(similarRecipe);
-      setShowShareDialog(false);
     } catch (err) {
       setLocalError(err.message || 'Failed to generate similar recipe');
       setError(err.message || 'Failed to generate similar recipe');
@@ -183,10 +213,10 @@ Difficulty: ${safeRecipe.difficulty}
                 zIndex: 10,
               }}
             >
-              <Tooltip title="Share Recipe">
+              <Tooltip title="Copy Recipe">
                 <IconButton
                   size="small"
-                  onClick={() => setShowShareDialog(true)}
+                  onClick={handleCopy}
                   sx={{
                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
                     backdropFilter: 'blur(4px)',
@@ -195,7 +225,27 @@ Difficulty: ${safeRecipe.difficulty}
                     },
                   }}
                 >
-                  <Share fontSize="small" />
+                  <ContentCopy fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              
+              <Tooltip title="Generate Similar Recipe">
+                <IconButton
+                  size="small"
+                  onClick={handleGenerateSimilar}
+                  disabled={isGenerating}
+                  sx={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    backdropFilter: 'blur(4px)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 1)',
+                    },
+                    '&:disabled': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                    },
+                  }}
+                >
+                  {isGenerating ? <Refresh fontSize="small" /> : <Restaurant fontSize="small" />}
                 </IconButton>
               </Tooltip>
               
@@ -341,62 +391,25 @@ Difficulty: ${safeRecipe.difficulty}
             </Box>
           </Box>
         </CardContent>
+        
+        {/* Success/Error Notifications */}
+        {(copySuccess || error) && (
+          <Box sx={{ p: 2, pt: 0 }}>
+            {copySuccess && (
+              <Alert severity="success" sx={{ mb: 1 }}>
+                Recipe copied to clipboard successfully!
+              </Alert>
+            )}
+            {error && (
+              <Alert severity="error" sx={{ mb: 1 }}>
+                {error}
+              </Alert>
+            )}
+          </Box>
+        )}
       </Card>
 
-      {/* Share Dialog */}
-      <Dialog
-        open={showShareDialog}
-        onClose={() => setShowShareDialog(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle sx={{ color: theme.palette.mode === 'dark' ? '#ffffff' : 'text.primary' }}>
-          Share Recipe
-        </DialogTitle>
-        <DialogContent>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-          <Typography variant="body2" sx={{ mb: 2, color: theme.palette.mode === 'dark' ? '#b0b0b0' : 'text.secondary' }}>
-            Choose an action for "{safeRecipe.title}"
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setShowShareDialog(false)}
-            sx={{ color: theme.palette.mode === 'dark' ? '#ffffff' : 'text.primary' }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleCopy}
-            startIcon={<ContentCopy />}
-            variant="outlined"
-            sx={{
-              borderColor: theme.palette.mode === 'dark' ? '#606060' : '#e0e0e0',
-              color: theme.palette.mode === 'dark' ? '#ffffff' : 'text.primary',
-            }}
-          >
-            Copy Recipe
-          </Button>
-          <Button
-            onClick={handleGenerateSimilar}
-            startIcon={isGenerating ? <Refresh /> : <Restaurant />}
-            variant="contained"
-            disabled={isGenerating}
-            sx={{
-              backgroundColor: theme.palette.mode === 'dark' ? '#4CAF50' : 'primary.main',
-              '&:hover': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#45a049' : 'primary.dark',
-              },
-            }}
-          >
-            {isGenerating ? 'Generating...' : 'Generate Similar'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+
 
       {/* Delete Confirmation Dialog */}
       <Dialog
